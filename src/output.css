@@ -254,6 +254,9 @@
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
+  .mt-4 {
+    margin-top: calc(var(--spacing) * 4);
+  }
   .mr-3 {
     margin-right: calc(var(--spacing) * 3);
   }
@@ -934,3 +937,25 @@
     }
   }
 }
+
+/* === Custom Utility Additions === */
+
+/* Opacity utilities */
+.bg-opacity-10 { background-color: rgba(255, 255, 255, 0.1); }
+.bg-opacity-20 { background-color: rgba(255, 255, 255, 0.2); }
+.bg-opacity-30 { background-color: rgba(255, 255, 255, 0.3); }
+.bg-opacity-40 { background-color: rgba(255, 255, 255, 0.4); }
+.bg-opacity-50 { background-color: rgba(255, 255, 255, 0.5); }
+.bg-opacity-60 { background-color: rgba(255, 255, 255, 0.6); }
+.bg-opacity-70 { background-color: rgba(255, 255, 255, 0.7); }
+.bg-opacity-80 { background-color: rgba(255, 255, 255, 0.8); }
+.bg-opacity-90 { background-color: rgba(255, 255, 255, 0.9); }
+
+/* Brightness utilities */
+.brightness-50 { filter: brightness(0.5); }
+.brightness-75 { filter: brightness(0.75); }
+.brightness-90 { filter: brightness(0.9); }
+.brightness-100 { filter: brightness(1); }
+.brightness-110 { filter: brightness(1.1); }
+.brightness-125 { filter: brightness(1.25); }
+.brightness-150 { filter: brightness(1.5); }

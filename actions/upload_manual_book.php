@@ -12,11 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // folder penyimpanan
+    // Folder penyimpanan
     $uploadDir = '../uploads/manual_book/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-    // validasi file PDF
+    // Validasi hanya PDF
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     if ($ext !== 'pdf') {
         $_SESSION['error'] = "Hanya file PDF yang diizinkan.";
@@ -24,17 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // buat nama baru unik
-    $newName = time() . '_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', basename($file['name']));
+    // Sanitasi nama file manual book agar aman
+    $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($nama_file));
+
+    // Tambahkan timestamp biar unik
+    $newName = $safeName . '_' . time() . '.pdf';
     $targetPath = $uploadDir . $newName;
 
+    // Pindahkan file
     if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+        // Simpan ke database
         $stmt = $connMB->prepare("INSERT INTO book_file (nama_file, file_path, uploaded_at) VALUES (?, ?, NOW())");
         $stmt->bind_param("ss", $nama_file, $targetPath);
         $stmt->execute();
         $stmt->close();
 
-        $_SESSION['success'] = "File berhasil diupload.";
+        $_SESSION['success'] = "File berhasil diupload sebagai <strong>{$newName}</strong>.";
     } else {
         $_SESSION['error'] = "Gagal mengupload file.";
     }

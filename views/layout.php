@@ -57,7 +57,7 @@
     </header>
 
     <!-- Content area -->
-    <main class="flex-1 p-6 overflow-auto bg-slate-50">
+    <main class="flex-1 p-6 overflow-auto bg-slate-100">
       <?php
       switch ($page) {
         case 'input_manual_book':
