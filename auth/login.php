@@ -47,17 +47,17 @@ if (isset($_SESSION['pending_user'])) {
     <form action="login_handler.php" method="POST" class="space-y-4">
       <input type="text" name="npk" placeholder="NPK"
              class="w-full px-4 py-3 border border-slate-300 rounded-md 
-                    focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-700">
+                    focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-700" required>
 
       <input type="password" name="password" placeholder="Password"
              class="w-full px-4 py-3 border border-slate-300 rounded-md 
-                    focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-700">
+                    focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-700" required>
 
       <div class="flex items-center gap-3">
         <img src="captcha.php" alt="Captcha" class="h-12 border border-slate-300 rounded-md">
         <input type="text" name="captcha" placeholder="Masukkan kode Captcha"
                class="flex-1 px-4 py-3 border border-slate-300 rounded-md 
-                      focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-700">
+                      focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-700" required>
       </div>
 
       <button type="submit"
@@ -67,6 +67,25 @@ if (isset($_SESSION['pending_user'])) {
       </button>
     </form>
   </div>
+
+  <script>
+    const form = document.querySelector("form");
+    const inputs = form.querySelectorAll("input");
+
+    inputs.forEach((input, index) => {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const nextInput = inputs[index + 1];
+          if (nextInput) {
+            nextInput.focus();
+          } else {
+            form.submit();
+          }
+        }
+      });
+    });
+  </script>
 
 </body>
 </html>

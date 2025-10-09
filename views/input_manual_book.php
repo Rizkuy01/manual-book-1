@@ -3,39 +3,73 @@ if (!isset($_SESSION['pending_user'])) {
     header("Location: ../auth/login.php");
     exit;
 }
+
+include './config.php';
+$departments = $connMB->query("SELECT id, dept_name FROM department ORDER BY dept_name");
 ?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upload Manual Book</title>
+  <link rel="stylesheet" href="../src/output.css">
 
-<div class="flex justify-center items-center min-h-[calc(100vh-4rem)]"> 
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+
   <div class="bg-white shadow-md rounded-xl w-full max-w-lg p-8">
-    <h2 class="text-2xl font-bold mb-6 text-center text-red-700">
-      Upload Manual Book (PDF)
-    </h2>
+    <h2 class="text-2xl font-bold mb-6 text-center text-red-700">Upload Manual Book (PDF)</h2>
 
-    <?php if (isset($_SESSION['success'])): ?>
-      <div class="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded mb-4">
-        <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+    <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
+
+      <!-- Dropdown Department -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Departemen</label>
+        <select id="dept" name="dept_id" required
+                class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <option value="">-- Pilih Departemen --</option>
+          <?php
+          while ($row = $departments->fetch_assoc()) {
+              echo '<option value="'.$row['id'].'">'.$row['dept_name'].'</option>';
+          }
+          ?>
+        </select>
       </div>
-    <?php endif; ?>
 
-    <?php if (isset($_SESSION['error'])): ?>
-      <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
-        <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+      <!-- Dropdown Section -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Section</label>
+        <select id="section" name="section_id" required
+                class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <option value="">-- Pilih Section --</option>
+        </select>
       </div>
-    <?php endif; ?>
 
-    <form action="actions/upload_manual_book.php" method="POST" enctype="multipart/form-data" class="space-y-4">
+      <!-- Dropdown Subsection -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Subsection</label>
+        <select id="subsection" name="subsection_id" required
+                class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <option value="">-- Pilih Subsection --</option>
+        </select>
+      </div>
+
+      <!-- Input Nama File -->
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Nama File</label>
         <input type="text" name="nama_file" required
-               class="w-full border border-slate-300 rounded-md px-3 py-2 
-                      focus:outline-none focus:ring-2 focus:ring-red-400" />
+               class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400" />
       </div>
 
+      <!-- Upload PDF -->
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Pilih File (PDF)</label>
         <input type="file" name="pdf_file" accept=".pdf" required
-               class="w-full border border-slate-300 rounded-md px-3 py-2 bg-white 
-                      focus:outline-none focus:ring-2 focus:ring-red-400" />
+               class="w-full border border-slate-300 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-red-400" />
       </div>
 
       <button type="submit" 
@@ -44,4 +78,83 @@ if (!isset($_SESSION['pending_user'])) {
       </button>
     </form>
   </div>
-</div>
+
+  <script>
+  $(document).ready(function() {
+    // Dropdown
+    $('#dept').change(function() {
+      const deptId = $(this).val();
+      $('#section').html('<option value="">-- Pilih Section --</option>');
+      $('#subsection').html('<option value="">-- Pilih Subsection --</option>');
+      
+      if (deptId) {
+        $.post('actions/ajax/get_sections.php', { dept_id: deptId }, function(data) {
+          $.each(data, function(i, item) {
+            $('#section').append(`<option value="${item.id}">${item.name}</option>`);
+          });
+        }, 'json');
+      }
+    });
+
+    $('#section').change(function() {
+      const sectionId = $(this).val();
+      $('#subsection').html('<option value="">-- Pilih Subsection --</option>');
+      
+      if (sectionId) {
+        $.post('actions/ajax/get_subsection.php', { section_id: sectionId }, function(data) {
+          $.each(data, function(i, item) {
+            $('#subsection').append(`<option value="${item.id}">${item.name}</option>`);
+          });
+        }, 'json');
+      }
+    });
+
+    // === Submit Form via AJAX ===
+    $('#uploadForm').on('submit', function(e) {
+      e.preventDefault();
+
+      let formData = new FormData(this);
+
+      $.ajax({
+        url: 'actions/upload_manual_book.php',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+          try {
+            const res = JSON.parse(response);
+            Swal.fire({
+              icon: res.status,
+              title: res.status === 'success' ? 'Berhasil!' : 'Gagal!',
+              html: res.message,
+              confirmButtonColor: '#dc2626'
+            });
+
+            if (res.status === 'success') {
+              $('#uploadForm')[0].reset();
+              $('#section').html('<option value="">-- Pilih Section --</option>');
+              $('#subsection').html('<option value="">-- Pilih Subsection --</option>');
+            }
+          } catch {
+            Swal.fire({
+              icon: 'error',
+              title: 'Gagal!',
+              text: 'Terjadi kesalahan pada server.'
+            });
+          }
+        },
+        error: function() {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: 'Tidak dapat menghubungi server.'
+          });
+        }
+      });
+    });
+  });
+  </script>
+
+</body>
+</html>
