@@ -5,7 +5,7 @@ if (!isset($_SESSION['pending_user'])) {
 }
 
 include './config.php';
-$departments = $connMB->query("SELECT id, dept_name FROM department ORDER BY dept_name");
+$departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_name NOT IN ('MIS', 'QA') ORDER BY dept_name");
 ?>
 <!DOCTYPE html>
 <html lang="id">

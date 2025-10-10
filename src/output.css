@@ -482,6 +482,9 @@
   .bg-\[\#142348\] {
     background-color: #142348;
   }
+  .bg-blue-600 {
+    background-color: var(--color-blue-600);
+  }
   .bg-blue-900 {
     background-color: var(--color-blue-900);
   }
@@ -496,6 +499,9 @@
   }
   .bg-red-600 {
     background-color: var(--color-red-600);
+  }
+  .bg-yellow-600 {
+    background-color: var(--color-yellow-600);
   }
   .bg-sky-50 {
     background-color: var(--color-sky-50);

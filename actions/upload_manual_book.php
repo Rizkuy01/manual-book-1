@@ -21,7 +21,7 @@ if (empty($nama_file) || empty($file['name']) || !$dept_id || !$section_id || !$
 }
 
 // Folder penyimpanan
-$uploadDir = '../uploads/manual_book/';
+$uploadDir = 'C:/Users/rizky/OneDrive/Pictures/manualbook/';
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
 // Validasi ekstensi
