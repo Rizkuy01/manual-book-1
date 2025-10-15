@@ -17,9 +17,7 @@ if (!isset($_SESSION['pending_user'])) {
       <div onclick="openModal('sectionModal')" 
           class="cursor-pointer bg-white border border-red-200 rounded-lg shadow hover:shadow-lg 
                  flex flex-col items-center justify-center p-6 transition transform hover:scale-105 hover:bg-gray-100">
-          <div class="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow">
               <i class="fa-solid fa-diagram-project text-2xl"></i>
-          </div>
           <h2 class="text-lg font-semibold text-gray-800 mt-3">Add Section</h2>
       </div>
 
@@ -27,9 +25,7 @@ if (!isset($_SESSION['pending_user'])) {
       <div onclick="openModal('subsectionModal')" 
           class="cursor-pointer bg-white border border-red-200 rounded-lg shadow hover:shadow-lg 
                  flex flex-col items-center justify-center p-6 transition transform hover:scale-105 hover:bg-gray-100">
-          <div class="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow">
               <i class="fa-solid fa-gears text-2xl"></i>
-          </div>
           <h2 class="text-lg font-semibold text-gray-800 mt-3">Add Subsection</h2>
       </div>
 
@@ -37,9 +33,7 @@ if (!isset($_SESSION['pending_user'])) {
       <div onclick="openModal('machineModal')" 
           class="cursor-pointer bg-white border border-red-200 rounded-lg shadow hover:shadow-lg 
                  flex flex-col items-center justify-center p-6 transition transform hover:scale-105 hover:bg-gray-100">
-          <div class="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-purple-600 text-white shadow">
               <i class="fa-solid fa-gear text-2xl"></i>
-          </div>
           <h2 class="text-lg font-semibold text-gray-800 mt-3">Add Machine</h2>
       </div>
   </div>
@@ -53,11 +47,17 @@ include __DIR__ . '/modals/add_machine_modal.php';
 
 <script>
 function openModal(id) {
-    document.getElementById(id).classList.remove('hidden');
-    document.getElementById(id).classList.add('flex');
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.style.display = 'flex'; // tampilkan modal
+  }
 }
+
 function closeModal(id) {
-    document.getElementById(id).classList.add('hidden');
-    document.getElementById(id).classList.remove('flex');
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.style.display = 'none'; // sembunyikan modal
+  }
 }
 </script>
+

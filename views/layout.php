@@ -17,6 +17,73 @@
     setInterval(updateTime, 1000);
     window.onload = updateTime;
   </script>
+  <style>
+/* Overlay (latar belakang gelap) */
+.modal-overlay {
+  display: none; /* default disembunyikan */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Box isi modal */
+.modal-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  position: relative;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Tombol close */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 18px;
+  color: #555;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Animasi */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Input & select style ringan */
+.modal-box input,
+.modal-box select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 4px;
+  margin-bottom: 10px;
+}
+
+.modal-box label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.modal-box button {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+</style>
 </head>
 <body class="flex h-screen bg-slate-100 text-slate-800">
   <!-- Sidebar -->
@@ -31,6 +98,9 @@
       </a>
       <a href="index.php?page=input_manual_book" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='input_manual_book')?'active-link':'' ?>">
         <i class="fa-solid fa-file-upload pr-2"></i> Upload Manual Book
+      </a>
+      <a href="index.php?page=system" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='system')?'active-link':'' ?>">
+        <i class="fa-solid fa-square-plus pr-2"></i> Add System Data
       </a>
     </nav>
   </aside>

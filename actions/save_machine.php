@@ -1,6 +1,8 @@
 <?php
 require_once '../config.php';
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo "<script>alert('Invalid request'); window.history.back();</script>";
@@ -44,10 +46,39 @@ $stmt->close();
 // Simpan ke tabel
 $stmt = $connMB->prepare("INSERT INTO contoh_mesin (machine_name, subsection_name, section_name, dept_name) VALUES (?, ?, ?, ?)");
 $stmt->bind_param('ssss', $machine_name, $subsection_name, $section_name, $dept_name);
-
-if ($stmt->execute()) {
-    echo "<script>alert('Data mesin berhasil disimpan!'); window.location='../views/system.php';</script>";
-} else {
-    echo "<script>alert('Gagal menyimpan data mesin!'); window.history.back();</script>";
-}
+$success = $stmt->execute();
 $stmt->close();
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Proses...</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<script>
+<?php if ($success): ?>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: 'Machine berhasil ditambahkan!',
+    confirmButtonColor: '#dc2626'
+}).then(() => {
+    window.location = '../views/dashboard_home.php';
+});
+<?php else: ?>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal!',
+    text: 'Terjadi kesalahan saat menyimpan data.',
+    confirmButtonColor: '#dc2626'
+}).then(() => {
+    window.history.back();
+});
+<?php endif; ?>
+</script>
+</body>
+</html>
+
