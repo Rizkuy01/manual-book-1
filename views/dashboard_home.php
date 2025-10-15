@@ -60,7 +60,7 @@ $uploads = $connMB->query("
 
   <!-- Statistik Cards -->
 <div class="flex flex-wrap justify-between py-5 gap-4 mb-8" style="gap: 20px;">
-  <div class="flex-1 min-w-[200px] bg-red-600 border-l-4 rounded-lg shadow p-4 text-center py-2 hover:shadow-md transition">
+  <div class="flex-1 min-w-[200px] border-l-4 bg-red-600 rounded-lg shadow p-4 text-center hover:shadow-md transition">
     <p class="text-sm text-white">Total Manual Book</p>
     <h3 class="text-3xl font-bold text-white"><?= $total_books ?></h3>
   </div>
@@ -74,20 +74,21 @@ $uploads = $connMB->query("
   </div>
 </div>
 
+<!-- Grafik dan Tabel Sampingan -->
+<div class="flex flex-wrap gap-3 mb-6">
 
-  <!-- Grafik Distribusi -->
-<div class="bg-white rounded-xl shadow p-6 mb-6">
-  <h3 class="font-semibold text-slate-700 mb-4">
-    📊 Distribusi Manual Book per Departemen
-  </h3>
-  <div style="height: 250px;">
-    <canvas id="deptChart"></canvas>
+  <!-- Grafik di Kiri -->
+  <div class="bg-white rounded-xl  border-red-600 shadow p-6 flex-1 min-w-[350px]" style="max-width: 55%;">
+    <h3 class="font-semibold text-slate-700 mb-4">
+      📊 Distribusi Manual Book per Departemen
+    </h3>
+    <div style="height: 250px;">
+      <canvas id="deptChart"></canvas>
+    </div>
   </div>
-</div>
 
-
-  <!-- Upload Terbaru -->
-  <div class="bg-white rounded-xl shadow p-6">
+  <!-- Upload Terbaru di Kanan -->
+  <div class="bg-white rounded-xl shadow p-6 flex-1 min-w-[350px]" style="max-width: 50%;">
     <div class="flex justify-between items-center mb-4">
       <h3 class="font-semibold text-slate-700">🕒 Upload Terbaru</h3>
       <a href="?page=input_manual_book" 
@@ -109,7 +110,22 @@ $uploads = $connMB->query("
           <?php while ($row = $uploads->fetch_assoc()): ?>
             <tr class="border-b hover:bg-slate-50 transition">
               <td class="py-2"><?= htmlspecialchars($row['nama_file']) ?></td>
-              <td><?= htmlspecialchars($row['dept_name']) ?></td>
+              <td>
+                <?php
+                $dept = $row['dept_name'];
+                $colors = [
+                    'Production 1' => 'bg-red-500 text-white',
+                    'Production 2' => 'bg-sky-600 text-white',
+                    'Production 3' => 'bg-blue-900 text-white',
+                    'Production 4' => 'bg-yellow-600 text-white',
+                    'Production 5' => 'bg-green-600 text-white',
+                ];
+                $colorClass = $colors[$dept] ?? 'bg-slate-400 text-white';
+                ?>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold <?= $colorClass ?>">
+                  <?= htmlspecialchars($dept) ?>
+                </span>
+              </td>
               <td><?= date('d M Y H:i', strtotime($row['uploaded_at'])) ?></td>
             </tr>
           <?php endwhile; ?>
@@ -121,6 +137,9 @@ $uploads = $connMB->query("
       </tbody>
     </table>
   </div>
+
+</div>
+
 
   <!-- Script Jam -->
   <script>

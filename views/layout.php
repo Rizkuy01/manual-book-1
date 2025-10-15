@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <link rel="stylesheet" href="src/output.css">
   <link rel="stylesheet" href="src/fontawesome/css/all.min.css">
   <script>
@@ -62,6 +63,9 @@
       switch ($page) {
         case 'input_manual_book':
           include 'views/input_manual_book.php';
+          break;
+        case 'system':
+          include 'views/system.php';
           break;
         default:
           include 'views/dashboard_home.php';

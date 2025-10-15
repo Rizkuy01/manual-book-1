@@ -491,6 +491,12 @@
   .bg-green-50 {
     background-color: var(--color-green-50);
   }
+  .bg-green-300 {
+    background-color: var(--color-green-300);
+  }
+  .bg-green-700 {
+    background-color: var(--color-green-700);
+  }
   .bg-red-50 {
     background-color: var(--color-red-50);
   }
@@ -514,6 +520,9 @@
   }
   .bg-slate-100 {
     background-color: var(--color-slate-100);
+  }
+  .bg-slate-600 {
+    background-color: var(--color-slate-600);
   }
   .bg-white {
     background-color: var(--color-white);
