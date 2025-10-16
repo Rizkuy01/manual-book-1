@@ -137,6 +137,12 @@
         case 'system':
           include 'views/system.php';
           break;
+        case 'list_machine':
+          include 'views/list_machine.php';
+          break;
+        case 'detail_machine':
+          include 'views/detail_machine.php';
+          break;
         default:
           include 'views/dashboard_home.php';
       }

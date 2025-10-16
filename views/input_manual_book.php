@@ -14,7 +14,6 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Upload Manual Book</title>
   <link rel="stylesheet" href="../src/output.css">
-
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -32,11 +31,9 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
         <select id="dept" name="dept_id" required
                 class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
           <option value="">-- Pilih Departemen --</option>
-          <?php
-          while ($row = $departments->fetch_assoc()) {
-              echo '<option value="'.$row['id'].'">'.$row['dept_name'].'</option>';
-          }
-          ?>
+          <?php while ($row = $departments->fetch_assoc()): ?>
+            <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['dept_name']) ?></option>
+          <?php endwhile; ?>
         </select>
       </div>
 
@@ -55,6 +52,15 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
         <select id="subsection" name="subsection_id" required
                 class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
           <option value="">-- Pilih Subsection --</option>
+        </select>
+      </div>
+
+      <!-- Dropdown Machine -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Machine</label>
+        <select id="machine" name="machine_id" required
+                class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+          <option value="">-- Pilih Machine --</option>
         </select>
       </div>
 
@@ -81,11 +87,13 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
 
   <script>
   $(document).ready(function() {
-    // Dropdown
+
+    // === Dropdown 1: Departemen ===
     $('#dept').change(function() {
       const deptId = $(this).val();
       $('#section').html('<option value="">-- Pilih Section --</option>');
       $('#subsection').html('<option value="">-- Pilih Subsection --</option>');
+      $('#machine').html('<option value="">-- Pilih Machine --</option>');
       
       if (deptId) {
         $.post('actions/ajax/get_sections.php', { dept_id: deptId }, function(data) {
@@ -96,9 +104,11 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
       }
     });
 
+    // === Dropdown 2: Section ===
     $('#section').change(function() {
       const sectionId = $(this).val();
       $('#subsection').html('<option value="">-- Pilih Subsection --</option>');
+      $('#machine').html('<option value="">-- Pilih Machine --</option>');
       
       if (sectionId) {
         $.post('actions/ajax/get_subsection.php', { section_id: sectionId }, function(data) {
@@ -109,10 +119,23 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
       }
     });
 
+    // === Dropdown 3: Subsection ===
+    $('#subsection').change(function() {
+      const subsectionId = $(this).val();
+      $('#machine').html('<option value="">-- Pilih Machine --</option>');
+      
+      if (subsectionId) {
+        $.post('actions/ajax/get_machine.php', { subsection_id: subsectionId }, function(data) {
+          $.each(data, function(i, item) {
+            $('#machine').append(`<option value="${item.id}">${item.machine_name}</option>`);
+          });
+        }, 'json');
+      }
+    });
+
     // === Submit Form via AJAX ===
     $('#uploadForm').on('submit', function(e) {
       e.preventDefault();
-
       let formData = new FormData(this);
 
       $.ajax({
@@ -135,6 +158,7 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
               $('#uploadForm')[0].reset();
               $('#section').html('<option value="">-- Pilih Section --</option>');
               $('#subsection').html('<option value="">-- Pilih Subsection --</option>');
+              $('#machine').html('<option value="">-- Pilih Machine --</option>');
             }
           } catch {
             Swal.fire({
