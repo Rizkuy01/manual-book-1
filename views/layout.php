@@ -96,6 +96,9 @@
       <a href="index.php?page=home" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='home')?'active-link':'' ?>">
         <i class="fa-solid fa-globe pr-2"></i> Dashboard
       </a>
+      <a href="index.php?page=list_machine" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='list_machine')?'active-link':'' ?>">
+        <i class="fa-solid fa-list-ul pr-2"></i> List Machine
+      </a>
       <a href="index.php?page=input_manual_book" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='input_manual_book')?'active-link':'' ?>">
         <i class="fa-solid fa-file-upload pr-2"></i> Upload Manual Book
       </a>
