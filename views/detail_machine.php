@@ -13,6 +13,9 @@ $stmt = $connMB->prepare("
         cm.maker,
         cm.user,
         cm.created_at,
+        cm.dept_id,
+        cm.section_id,
+        cm.subsection_id,
         d.dept_name AS department,
         s.name AS section,
         ss.name AS subsection,
@@ -27,6 +30,7 @@ $stmt = $connMB->prepare("
     WHERE cm.id = ?
     LIMIT 1
 ");
+
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -67,6 +71,12 @@ $success = $_GET['success'] ?? null;
     .btn.edit { background: #f59e0b; }
     .btn.edit:hover { background: #d97706; }
     iframe { width: 100%; min-height: 600px; border-radius: 8px; border: 1px solid #cbd5e1; }
+    .btn.upload {
+        background: #2563eb;
+      }
+      .btn.upload:hover {
+        background: #1d4ed8;
+      }
     .pdf-placeholder {
       text-align: center; color: #64748b; font-style: italic;
       padding: 80px 20px; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f8fafc;
@@ -109,7 +119,8 @@ $success = $_GET['success'] ?? null;
   <h1 class="page-title">📘 Detail Machine Manual Book</h1>
 
   <div class="container">
-    <!-- LEFT: Machine Info -->
+
+    <!-- Machine Info -->
     <div class="card info">
       <h2>Machine Information</h2>
       <table class="info-table">
@@ -126,25 +137,32 @@ $success = $_GET['success'] ?? null;
 
       <div class="btn-group">
         <a href="index.php?page=list_machine" class="btn back">← Kembali</a>
-        <button class="btn edit" onclick="openEditModal()">✏️ Edit</button>
+        <button class="btn edit" onclick="openEditModal()">Edit</button>
+        <button class="btn upload" onclick="openUploadModal()">Update File</button>
       </div>
     </div>
 
-    <!-- RIGHT: Viewer -->
+    <!-- Viewer -->
     <div class="card viewer">
       <h2>Manual Book Viewer</h2>
-      <?php if (!empty($data['file_path']) && file_exists($data['file_path'])): ?>
-        <iframe src="../manual-book-files/<?= rawurlencode(basename($data['file_path'])) ?>"></iframe>
-      <?php else: ?>
-        <div class="pdf-placeholder">
-          Belum memiliki file manual book.<br><br>
-          <a href="index.php?page=input_manual_book&machine_id=<?= $data['id'] ?>" class="upload-btn">+ Upload Manual Book</a>
-        </div>
-      <?php endif; ?>
+      <?php
+        $filePath = $data['file_path'] ?? '';
+        $fileFullPath = 'C:/laragon/www/' . str_replace('/', '\\', $filePath);
+        ?>
+
+        <?php if (!empty($filePath) && file_exists($fileFullPath)): ?>
+          <iframe src="/<?= htmlspecialchars($filePath) ?>" 
+                  style="width:100%; min-height:600px; border:1px solid #cbd5e1; border-radius:8px;"></iframe>
+        <?php else: ?>
+          <div class="pdf-placeholder">
+            Belum memiliki file manual book.<br><br>
+            <a href="#" class="upload-btn" onclick="openUploadModal()">+ Upload Manual Book</a>
+          </div>
+        <?php endif; ?>
     </div>
   </div>
 
-  <!-- 🟡 MODAL EDIT MACHINE -->
+  <!-- MODAL EDIT MACHINE -->
   <div id="editModal" class="modal-overlay">
     <div class="modal-box machine">
       <button onclick="closeEditModal()" class="close-btn">✕</button>
@@ -187,10 +205,46 @@ $success = $_GET['success'] ?? null;
     </div>
   </div>
 
+  <!-- MODAL UPDATE FILE -->
+  <div id="uploadModal" class="modal-overlay">
+    <div class="modal-box machine">
+      <button onclick="closeUploadModal()" class="close-btn">✕</button>
+      <h3 class="text-lg font-bold mb-4">📁 Update Manual Book</h3>
+
+      <form method="POST" action="actions/update_file.php" enctype="multipart/form-data">
+        <input type="hidden" name="machine_id" value="<?= $data['id'] ?>">
+        <input type="hidden" name="dept_id" value="<?= htmlspecialchars($data['dept_id']) ?>">
+        <input type="hidden" name="section_id" value="<?= htmlspecialchars($data['section_id']) ?>">
+        <input type="hidden" name="subsection_id" value="<?= htmlspecialchars($data['subsection_id']) ?>">
+
+        <div class="form-row">
+          <div>
+            <label>Nama File Manual Book</label>
+            <input type="text" name="nama_file" placeholder="Masukkan nama file manual..." required>
+          </div>
+          <div>
+            <label>File (PDF)</label>
+            <input type="file" name="pdf_file" accept=".pdf" required>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" onclick="closeUploadModal()" class="btn-cancel">Batal</button>
+          <button type="submit" class="btn-save">Simpan File</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
   <script>
     const modal = document.getElementById('editModal');
     function openEditModal() { modal.style.display = 'flex'; }
     function closeEditModal() { modal.style.display = 'none'; }
+
+    const uploadModal = document.getElementById('uploadModal');
+    function openUploadModal() { uploadModal.style.display = 'flex'; }
+    function closeUploadModal() { uploadModal.style.display = 'none'; }
 
     <?php if ($success): ?>
       Swal.fire({

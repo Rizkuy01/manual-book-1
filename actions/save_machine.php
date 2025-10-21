@@ -4,11 +4,6 @@ session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Pastikan method POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo "<script>alert('Invalid request'); window.history.back();</script>";
-    exit;
-}
 
 // Ambil data dari form
 $dept_id       = $_POST['dept_id'] ?? '';
