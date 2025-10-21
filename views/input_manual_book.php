@@ -5,6 +5,35 @@ if (!isset($_SESSION['pending_user'])) {
 }
 
 include './config.php';
+
+// Cek jika ada parameter machine_id
+$machine_id = $_GET['machine_id'] ?? null;
+$prefill = null;
+
+if ($machine_id) {
+    $stmt = $connMB->prepare("
+        SELECT 
+            cm.id AS machine_id,
+            cm.machine_name,
+            cm.dept_id,
+            cm.section_id,
+            cm.subsection_id,
+            d.dept_name,
+            s.name AS section_name,
+            ss.name AS subsection_name
+        FROM contoh_mesin cm
+        LEFT JOIN department d ON d.id = cm.dept_id
+        LEFT JOIN section s ON s.id = cm.section_id
+        LEFT JOIN subsection ss ON ss.id = cm.subsection_id
+        WHERE cm.id = ?
+    ");
+    $stmt->bind_param("i", $machine_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $prefill = $result->fetch_assoc();
+    $stmt->close();
+}
+
 $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_name NOT IN ('MIS', 'QA') ORDER BY dept_name");
 ?>
 <!DOCTYPE html>
@@ -18,7 +47,6 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    /* === Hanya untuk posisi card === */
     .center-wrapper {
       display: flex;
       justify-content: center;
@@ -39,40 +67,64 @@ $departments = $connMB->query("SELECT id, dept_name FROM department WHERE dept_n
         <!-- Dropdown Department -->
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Departemen</label>
-          <select id="dept" name="dept_id" required
-                  class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
-            <option value="">-- Pilih Departemen --</option>
-            <?php while ($row = $departments->fetch_assoc()): ?>
-              <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['dept_name']) ?></option>
-            <?php endwhile; ?>
-          </select>
+          <?php if ($prefill): ?>
+            <input type="hidden" name="dept_id" value="<?= $prefill['dept_id'] ?>">
+            <input type="text" value="<?= htmlspecialchars($prefill['dept_name']) ?>" 
+                  class="w-full border border-slate-300 rounded-md px-3 py-2 bg-slate-100" readonly>
+          <?php else: ?>
+            <select id="dept" name="dept_id" required
+                    class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+              <option value="">-- Pilih Departemen --</option>
+              <?php while ($row = $departments->fetch_assoc()): ?>
+                <option value="<?= $row['id'] ?>"><?= htmlspecialchars($row['dept_name']) ?></option>
+              <?php endwhile; ?>
+            </select>
+          <?php endif; ?>
         </div>
 
         <!-- Dropdown Section -->
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Section</label>
-          <select id="section" name="section_id" required
-                  class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
-            <option value="">-- Pilih Section --</option>
-          </select>
+          <?php if ($prefill): ?>
+            <input type="hidden" name="section_id" value="<?= $prefill['section_id'] ?>">
+            <input type="text" value="<?= htmlspecialchars($prefill['section_name']) ?>" 
+                  class="w-full border border-slate-300 rounded-md px-3 py-2 bg-slate-100" readonly>
+          <?php else: ?>
+            <select id="section" name="section_id" required
+                    class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+              <option value="">-- Pilih Section --</option>
+            </select>
+          <?php endif; ?>
         </div>
 
         <!-- Dropdown Subsection -->
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Subsection</label>
-          <select id="subsection" name="subsection_id" required
-                  class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
-            <option value="">-- Pilih Subsection --</option>
-          </select>
+          <?php if ($prefill): ?>
+            <input type="hidden" name="subsection_id" value="<?= $prefill['subsection_id'] ?>">
+            <input type="text" value="<?= htmlspecialchars($prefill['subsection_name']) ?>" 
+                  class="w-full border border-slate-300 rounded-md px-3 py-2 bg-slate-100" readonly>
+          <?php else: ?>
+            <select id="subsection" name="subsection_id" required
+                    class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+              <option value="">-- Pilih Subsection --</option>
+            </select>
+          <?php endif; ?>
         </div>
 
         <!-- Dropdown Machine -->
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Machine</label>
-          <select id="machine" name="machine_id" required
-                  class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
-            <option value="">-- Pilih Machine --</option>
-          </select>
+          <?php if ($prefill): ?>
+            <input type="hidden" name="machine_id" value="<?= $prefill['machine_id'] ?>">
+            <input type="text" value="<?= htmlspecialchars($prefill['machine_name']) ?>" 
+                  class="w-full border border-slate-300 rounded-md px-3 py-2 bg-slate-100" readonly>
+          <?php else: ?>
+            <select id="machine" name="machine_id" required
+                    class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400">
+              <option value="">-- Pilih Machine --</option>
+            </select>
+          <?php endif; ?>
         </div>
 
         <!-- Input Nama File -->

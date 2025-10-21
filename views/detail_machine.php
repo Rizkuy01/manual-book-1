@@ -85,6 +85,21 @@ if (!$data) die('Data mesin tidak ditemukan.');
       align-self: flex-start; margin-top: 16px; transition: all 0.25s ease;
     }
     .back-btn:hover { background: #b91c1c; transform: scale(1.02); }
+    .upload-btn {
+      display: inline-block;
+      background: #dc2626;
+      color: #fff;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .upload-btn:hover {
+      background: #b91c1c;
+      transform: scale(1.03);
+    }
     iframe {
       width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc;
       min-height: 600px;
@@ -190,7 +205,13 @@ if (!$data) die('Data mesin tidak ditemukan.');
         if ($showIframe && !empty($iframeUrl)): ?>
           <iframe src="<?= htmlspecialchars($iframeUrl) ?>" frameborder="0"></iframe>
       <?php else: ?>
-          <div class="pdf-placeholder">Belum memiliki file manual book.</div>
+          <div class="pdf-placeholder">
+              Belum memiliki file manual book.<br><br>
+              <a href="index.php?page=input_manual_book&machine_id=<?= $data['id'] ?>"
+                class="upload-btn">
+                + Upload Manual Book
+              </a>
+          </div>
       <?php endif; ?>
     </div>
 

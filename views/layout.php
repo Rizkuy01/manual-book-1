@@ -146,6 +146,9 @@
         case 'detail_machine':
           include 'views/detail_machine.php';
           break;
+        case 'edit_machine':
+          include 'views/edit_machine.php';
+          break;
         default:
           include 'views/dashboard_home.php';
       }

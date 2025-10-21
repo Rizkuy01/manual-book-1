@@ -1,31 +1,29 @@
 <?php
 include './config.php';
 
-// Ambil filter departemen
+// === Ambil filter departemen ===
 $deptFilter = $_GET['dept'] ?? '';
 
-// Ambil halaman saat ini (default 1)
+// === Pagination ===
 $page = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// Ambil daftar departemen untuk dropdown filter
+// === Ambil daftar departemen ===
 $deptQuery = $connMB->query("SELECT id, dept_name FROM department WHERE dept_name NOT IN ('MIS','QA') ORDER BY dept_name");
 
-// Hitung total data untuk pagination
+// === Hitung total data untuk pagination ===
 $countSql = "
     SELECT COUNT(*) AS total 
     FROM contoh_mesin cm
     LEFT JOIN department d ON cm.dept_id = d.id
 ";
-if ($deptFilter) {
-    $countSql .= " WHERE cm.dept_id = " . intval($deptFilter);
-}
+if ($deptFilter) $countSql .= " WHERE cm.dept_id = " . intval($deptFilter);
 $totalResult = $connMB->query($countSql)->fetch_assoc();
 $totalData = $totalResult['total'] ?? 0;
 $totalPages = ceil($totalData / $limit);
 
-// Query utama (ambil data per halaman)
+// === Query utama (default view) ===
 $sql = "
     SELECT 
         cm.id,
@@ -40,12 +38,9 @@ $sql = "
     LEFT JOIN department d ON cm.dept_id = d.id
     LEFT JOIN section s ON cm.section_id = s.id
 ";
-if ($deptFilter) {
-    $sql .= " WHERE cm.dept_id = " . intval($deptFilter);
-}
+if ($deptFilter) $sql .= " WHERE cm.dept_id = " . intval($deptFilter);
 $sql .= " ORDER BY d.dept_name, s.name, cm.machine_name
            LIMIT $limit OFFSET $offset";
-
 $result = $connMB->query($sql);
 ?>
 
@@ -56,6 +51,8 @@ $result = $connMB->query($sql);
   <title>List Machine</title>
   <link rel="stylesheet" href="../src/output.css">
   <script src="https://kit.fontawesome.com/a2e0e6ad6d.js" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
   <style>
     body {
       background-color: #f1f5f9;
@@ -68,24 +65,53 @@ $result = $connMB->query($sql);
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .header-bar h1 {
       font-size: 1.5rem;
       font-weight: 700;
       color: #1e293b;
     }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     .filter-btn {
       background: #dc2626;
       color: #fff;
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 1rem;
       border: none;
       border-radius: 6px;
-      padding: 8px 14px;
+      padding: 8px 12px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
     .filter-btn:hover { background: #b91c1c; }
+
+    /* Search */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 4px 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      font-size: 0.9rem;
+      padding: 6px;
+      width: 200px;
+    }
+    .search-bar i {
+      color: #6b7280;
+    }
+
+    /* Table */
     .table-wrapper {
       background: #fff;
       border-radius: 12px;
@@ -93,32 +119,35 @@ $result = $connMB->query($sql);
       padding: 20px;
       overflow-x: auto;
     }
-    table { width: 100%; border-collapse: collapse; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
     th, td {
-      text-align: left;
       padding: 10px 12px;
       border-bottom: 1px solid #e2e8f0;
+      text-align: center;
     }
     th {
       background: #f8fafc;
-      font-size: 0.85rem;
-      text-transform: uppercase;
       color: #475569;
-      text-align: center;
+      text-transform: uppercase;
+      font-size: 0.85rem;
     }
-    td { 
-      font-size: 0.95rem; 
-      text-align: center;
-    }
-    .machine-name {
-      text-align: left;
-    }
+    td { font-size: 0.95rem; }
+    .machine-name { text-align: left; }
     .action-btn {
       color: #2563eb;
       font-size: 1.1rem;
       transition: 0.2s;
     }
     .action-btn:hover { color: #1e40af; }
+    .action-icon {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    /* Pagination */
     .pagination {
       margin-top: 20px;
       display: flex;
@@ -140,11 +169,9 @@ $result = $connMB->query($sql);
       color: #fff;
       border-color: #dc2626;
     }
-    .pagination a:hover:not(.active) {
-      background: #f3f4f6;
-    }
+    .pagination a:hover:not(.active) { background: #f3f4f6; }
 
-    /* Modal Filter */
+    /* Modal */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -192,75 +219,27 @@ $result = $connMB->query($sql);
     }
     .btn-cancel { background: #e2e8f0; }
     .btn-apply { background: #f59e0b; color: #fff; }
-
-    
   </style>
 </head>
 
 <body>
   <div class="header-bar">
     <h1>🧾 List Machine Manual Book</h1>
-    <button class="filter-btn" onclick="openModal()">🔍 Filter by Department</button>
+    <div class="header-actions">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Cari mesin...">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+      <button class="filter-btn" onclick="openModal()">
+        <i class="fa-solid fa-filter"></i>
+      </button>
+    </div>
   </div>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Machine Name</th>
-          <th>Section</th>
-          <th>Department</th>
-          <th>Manual Book</th>
-          <th class="text-center">Detail</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php 
-        if ($result->num_rows > 0):
-          $no = $offset + 1;
-          while ($row = $result->fetch_assoc()):
-            $icon = $row['has_manual'] > 0 
-              ? '<i class="fa-solid fa-check text-green-600"></i>' 
-              : '<i class="fa-solid fa-xmark text-red-600"></i>';
-        ?>
-        <tr>
-          <td><?= $no++ ?></td>
-          <td class="machine-name font-semibold text-slate-800"><?= htmlspecialchars($row['machine_name']) ?></td>
-          <td><?= htmlspecialchars($row['section']) ?></td>
-          <td><?= htmlspecialchars($row['department']) ?></td>
-          <td class="action-icon"><?= $icon ?></td>
-          <td class="text-center">
-            <a href="index.php?page=detail_machine&id=<?= $row['id'] ?>" class="action-btn" title="Lihat Detail">
-              <i class="fa-solid fa-eye"></i>
-            </a>
-          </td>
-        </tr>
-        <?php endwhile; else: ?>
-          <tr><td colspan="6" class="text-center py-4 text-slate-500 italic">Tidak ada data ditemukan.</td></tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
+  <div class="table-wrapper" id="tableContainer">
+    <!-- Tabel utama dimuat lewat AJAX -->
+    <div style="text-align:center; color:#64748b; padding:40px;">Memuat data...</div>
   </div>
-
-  <!-- Pagination -->
-  <?php if ($totalPages > 1): ?>
-  <div class="pagination">
-    <?php if ($page > 1): ?>
-      <a href="?page=list_machine&dept=<?= $deptFilter ?>&p=<?= $page-1 ?>">«</a>
-    <?php endif; ?>
-
-    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-      <a href="?page=list_machine&dept=<?= $deptFilter ?>&p=<?= $i ?>" class="<?= $i == $page ? 'active' : '' ?>">
-        <?= $i ?>
-      </a>
-    <?php endfor; ?>
-
-    <?php if ($page < $totalPages): ?>
-      <a href="?page=list_machine&dept=<?= $deptFilter ?>&p=<?= $page+1 ?>">»</a>
-    <?php endif; ?>
-  </div>
-  <?php endif; ?>
 
   <!-- Modal Filter -->
   <div id="filterModal" class="modal-overlay">
@@ -284,10 +263,39 @@ $result = $connMB->query($sql);
     </div>
   </div>
 
-  <script>
-    const modal = document.getElementById('filterModal');
-    function openModal() { modal.style.display = 'flex'; }
-    function closeModal() { modal.style.display = 'none'; }
-  </script>
+<script>
+  const modal = document.getElementById('filterModal');
+  function openModal() { modal.style.display = 'flex'; }
+  function closeModal() { modal.style.display = 'none'; }
+
+  // === Load tabel (default: server pagination) ===
+  function loadTable(search = '') {
+    const dept = "<?= $deptFilter ?>";
+    const page = "<?= $page ?>";
+
+    if (search.trim() === '') {
+      // Tidak ada pencarian → reload halaman penuh (pakai pagination)
+      $('#tableContainer').load('actions/ajax/table_machine_paginated.php?dept=' + dept + '&p=' + page);
+    } else {
+      // Ada pencarian → AJAX tanpa pagination
+      $('#tableContainer').html('<div style="text-align:center; color:#64748b; padding:40px;">Mencari...</div>');
+      $.get('actions/ajax/search_machine.php', { dept: dept, search: search }, function(data) {
+        $('#tableContainer').html(data);
+      });
+    }
+  }
+
+  $(document).ready(function() {
+    // Load default paginated table
+    loadTable();
+
+    // Live search
+    $('#searchInput').on('keyup', function() {
+      const val = $(this).val();
+      loadTable(val);
+    });
+  });
+</script>
+
 </body>
 </html>
