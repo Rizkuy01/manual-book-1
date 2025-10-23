@@ -17,25 +17,26 @@ if (!$nama_file || !$dept_id || !$section_id || !$subsection_id || !$machine_id 
     exit(json_encode(['status' => 'error', 'message' => 'Semua field wajib diisi.']));
 }
 
-$uploadDir = __DIR__ . '/../manual-book-files/';
+// Folder tujuan luar project (C:/laragon/www/manual-book-files/)
+$uploadDir = 'C:/laragon/www/manual-book-files/';
+
+// Jika folder belum ada, buat
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-$ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-$finfo = new finfo(FILEINFO_MIME_TYPE);
-$mime = $finfo->file($file['tmp_name']);
-if ($ext !== 'pdf' || $mime !== 'application/pdf') {
-    exit(json_encode(['status' => 'error', 'message' => 'Hanya file PDF valid yang diizinkan.']));
-}
-
+// Nama file baru aman
 $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($nama_file));
 $newName = $safeName . '_' . uniqid() . '.pdf';
-$targetPath = $uploadDir . $newName;
-$relativePath = 'manual-book-files/' . $newName;
 
+// Path absolut dan relatif
+$targetPath = $uploadDir . $newName;
+$relativePath = 'manual-book-files/' . $newName; // ini yang masuk DB
+
+// Upload file
 if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
     exit(json_encode(['status' => 'error', 'message' => 'Gagal menyimpan file di server.']));
 }
 
+// Simpan ke database
 $stmt = $connMB->prepare("
   INSERT INTO book_file (nama_file, file_path, dept_id, section_id, subsection_id, machine_id, uploaded_at)
   VALUES (?, ?, ?, ?, ?, ?, NOW())

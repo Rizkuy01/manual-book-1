@@ -16,7 +16,7 @@ if (!isset($_SESSION['pending_user'])) {
       <!-- Add Section -->
       <div onclick="openModal('sectionModal')" 
           class="cursor-pointer bg-white border border-red-200 rounded-lg shadow hover:shadow-lg 
-                 flex flex-col items-center justify-center p-6 transition transform hover:scale-105 hover:bg-gray-100">
+                 flex flex-col items-center justify-center p-6 transition transform hover:scale-105 hover:bg-gray-100" hidden>
               <i class="fa-solid fa-diagram-project text-2xl"></i>
           <h2 class="text-lg font-semibold text-gray-800 mt-3">Add Section</h2>
       </div>
@@ -24,7 +24,7 @@ if (!isset($_SESSION['pending_user'])) {
       <!-- Add Subsection -->
       <div onclick="openModal('subsectionModal')" 
           class="cursor-pointer bg-white border border-red-200 rounded-lg shadow hover:shadow-lg 
-                 flex flex-col items-center justify-center p-6 transition transform hover:scale-105 hover:bg-gray-100">
+                 flex flex-col items-center justify-center p-6 transition transform hover:scale-105 hover:bg-gray-100" hidden>
               <i class="fa-solid fa-gears text-2xl"></i>
           <h2 class="text-lg font-semibold text-gray-800 mt-3">Add Subsection</h2>
       </div>
@@ -49,14 +49,14 @@ include __DIR__ . '/modals/add_machine_modal.php';
 function openModal(id) {
   const modal = document.getElementById(id);
   if (modal) {
-    modal.style.display = 'flex'; // tampilkan modal
+    modal.style.display = 'flex'; 
   }
 }
 
 function closeModal(id) {
   const modal = document.getElementById(id);
   if (modal) {
-    modal.style.display = 'none'; // sembunyikan modal
+    modal.style.display = 'none'; 
   }
 }
 </script>

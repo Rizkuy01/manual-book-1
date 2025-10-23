@@ -49,15 +49,14 @@ if ($mime !== 'application/pdf' || $ext !== 'pdf') {
     showAlert('error', 'Format tidak valid', 'File harus berupa PDF.');
 }
 
-// Simpan di: C:\laragon\www\manual-book-files\
 $uploadDir = 'C:/laragon/www/manual-book-files/';
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-// Buat nama file unik
-$safeName   = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($nama_file));
-$newName    = $safeName . '_' . time() . '.pdf';
+$safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($nama_file));
+$newName = $safeName . '_' . time() . '.pdf';
 $targetPath = $uploadDir . $newName;
-$filePath   = 'manual-book-files/' . $newName;
+$filePath = 'manual-book-files/' . $newName;
+
 
 // Pindahkan file ke direktori tujuan
 if (!move_uploaded_file($file['tmp_name'], $targetPath)) {

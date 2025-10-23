@@ -146,19 +146,19 @@ $success = $_GET['success'] ?? null;
     <div class="card viewer">
       <h2>Manual Book Viewer</h2>
       <?php
-        $filePath = $data['file_path'] ?? '';
-        $fileFullPath = 'C:/laragon/www/' . str_replace('/', '\\', $filePath);
-        ?>
+$filePath = $data['file_path'] ?? '';
+$absolutePath = 'C:/laragon/www/' . str_replace('/', '\\', $filePath);
+?>
 
-        <?php if (!empty($filePath) && file_exists($fileFullPath)): ?>
-          <iframe src="/<?= htmlspecialchars($filePath) ?>" 
-                  style="width:100%; min-height:600px; border:1px solid #cbd5e1; border-radius:8px;"></iframe>
-        <?php else: ?>
-          <div class="pdf-placeholder">
-            Belum memiliki file manual book.<br><br>
-            <a href="#" class="upload-btn" onclick="openUploadModal()">+ Upload Manual Book</a>
-          </div>
-        <?php endif; ?>
+<?php if (!empty($filePath) && file_exists($absolutePath)): ?>
+  <iframe src="/<?= htmlspecialchars($filePath) ?>" width="100%" height="600px"></iframe>
+<?php else: ?>
+  <div class="pdf-placeholder">
+    Belum memiliki file manual book.<br><br>
+    <a href="#" class="upload-btn" onclick="openUploadModal()">+ Upload Manual Book</a>
+  </div>
+<?php endif; ?>
+
     </div>
   </div>
 

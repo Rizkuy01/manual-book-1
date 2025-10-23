@@ -8,7 +8,7 @@ include './config.php';
 
 // === Statistik Umum ===
 $total_books = $connMB->query("SELECT COUNT(*) AS total FROM book_file")->fetch_assoc()['total'];
-$total_subsec = $connMB->query("SELECT COUNT(*) AS total FROM subsection")->fetch_assoc()['total'];
+$total_machine = $connMB->query("SELECT COUNT(*) AS total FROM contoh_mesin")->fetch_assoc()['total'];
 $upload_today = $connMB->query("SELECT COUNT(*) AS total FROM book_file WHERE DATE(uploaded_at) = CURDATE()")->fetch_assoc()['total'];
 
 // === Data Grafik (Distribusi Manual Book per Departemen) ===
@@ -43,6 +43,7 @@ $uploads = $connMB->query("
   <meta charset="UTF-8">
   <title>Dashboard - Manual Book</title>
   <link rel="stylesheet" href="../src/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -62,6 +63,80 @@ $uploads = $connMB->query("
     .badge-prod4 { background-color: #ca8a04; }   /* kuning keemasan */
     .badge-prod5 { background-color: #16a34a; }   /* hijau */
     .badge-default { background-color: #94a3b8; } /* abu */
+
+    /* ====== STATISTIC CARDS ====== */
+    .stats-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 250px;
+      border-radius: 12px;
+      padding: 20px 25px;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .stat-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-info h4 {
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .stat-info h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .stat-info p {
+      font-size: 13px;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .icon {
+      font-size: 38px;
+      opacity: 0.8;
+    }
+
+    /* ====== GRADIENT COLORS ====== */
+    .gradient-blue {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    }
+
+    .gradient-green {
+      background: linear-gradient(135deg, #10b981, #34d399);
+    }
+
+    .gradient-orange {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .stats-container {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -76,21 +151,48 @@ $uploads = $connMB->query("
     <div id="clock" class="text-sm text-slate-400 mt-1"></div>
   </div>
 
-  <!-- Statistik Cards -->
-  <div class="flex flex-wrap justify-between py-5 gap-4 mb-8" style="gap: 20px;">
-    <div class="flex-1 min-w-[200px] bg-red-600 rounded-lg shadow p-4 text-center hover:shadow-md transition">
-      <p class="text-sm text-white">Total Manual Book</p>
-      <h3 class="text-3xl font-bold text-white"><?= $total_books ?></h3>
+    <!-- Statistik Cards -->
+  <div class="stats-container">
+    <div class="stat-card gradient-blue">
+      <div class="stat-content">
+        <div class="icon">
+          <i class="fa fa-book"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Total Manual Book</h4>
+          <h2><?= $total_books ?></h2>
+          <p>Total File</p>
+        </div>
+      </div>
     </div>
-    <div class="flex-1 min-w-[200px] bg-sky-600 rounded-lg shadow p-4 text-center hover:shadow-md transition">
-      <p class="text-sm text-white">Total Subsection</p>
-      <h3 class="text-3xl font-bold text-white"><?= $total_subsec ?></h3>
+
+    <div class="stat-card gradient-green">
+      <div class="stat-content">
+        <div class="icon">
+          <i class="fa fa-cogs"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Total Machine</h4>
+          <h2><?= $total_machine ?></h2>
+          <p>Mesin Terdaftar</p>
+        </div>
+      </div>
     </div>
-    <div class="flex-1 min-w-[200px] bg-yellow-600 rounded-lg shadow p-4 text-center hover:shadow-md transition">
-      <p class="text-sm text-white">Upload Hari Ini</p>
-      <h3 class="text-3xl font-bold text-white"><?= $upload_today ?></h3>
+
+    <div class="stat-card gradient-orange">
+      <div class="stat-content">
+        <div class="icon">
+          <i class="fa fa-sync"></i>
+        </div>
+        <div class="stat-info">
+          <h4>Upload Hari Ini</h4>
+          <h2><?= $upload_today ?></h2>
+          <p>Tanggal <?= date('d M Y') ?></p>
+        </div>
+      </div>
     </div>
   </div>
+
 
   <!-- Grafik & Upload Terbaru -->
   <div class="flex flex-wrap gap-3 mb-6">
