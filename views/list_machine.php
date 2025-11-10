@@ -23,7 +23,7 @@ $totalResult = $connMB->query($countSql)->fetch_assoc();
 $totalData = $totalResult['total'] ?? 0;
 $totalPages = ceil($totalData / $limit);
 
-// === Query utama (default view) ===
+// === Query utama ===
 $sql = "
     SELECT 
         cm.id,

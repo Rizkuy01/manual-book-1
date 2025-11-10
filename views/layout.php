@@ -102,9 +102,12 @@
       <a href="index.php?page=input_manual_book" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='input_manual_book')?'active-link':'' ?>">
         <i class="fa-solid fa-file-upload pr-2"></i> Upload Manual Book
       </a>
-      <a href="index.php?page=system" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='system')?'active-link':'' ?>">
+
+      <!-- Add Machine ambil dari portal asset management -->
+      <!-- <a href="index.php?page=system" class="flex items-center p-2 rounded-lg hover:bg-slate-100 <?= ($page=='system')?'active-link':'' ?>">
         <i class="fa-solid fa-square-plus pr-2"></i> Add System Data
-      </a>
+      </a> -->
+      
     </nav>
   </aside>
 
