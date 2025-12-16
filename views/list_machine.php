@@ -1,48 +1,58 @@
 <?php
 include './config.php';
 
-// === Ambil filter departemen ===
+// === Ambil filter departemen (sekarang pakai kolom prod) ===
 $deptFilter = $_GET['dept'] ?? '';
 
 // === Pagination ===
-$page = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
+$page  = isset($_GET['p']) ? max(1, intval($_GET['p'])) : 1;
 $limit = 10;
 $offset = ($page - 1) * $limit;
 
-// === Ambil daftar departemen ===
-$deptQuery = $connMB->query("SELECT id, dept_name FROM department WHERE dept_name NOT IN ('MIS','QA') ORDER BY dept_name");
+// === Ambil daftar "departemen" dari kolom prod di table machine ===
+$deptQuery = $connMB->query("
+    SELECT DISTINCT prod 
+    FROM machine 
+    WHERE prod <> '' 
+    ORDER BY prod
+");
 
 // === Hitung total data untuk pagination ===
-$countSql = "
-    SELECT COUNT(*) AS total 
-    FROM contoh_mesin cm
-    LEFT JOIN department d ON cm.dept_id = d.id
-";
-if ($deptFilter) $countSql .= " WHERE cm.dept_id = " . intval($deptFilter);
+$countSql = "SELECT COUNT(*) AS total FROM machine m";
+if ($deptFilter !== '') {
+    $safeDept = $connMB->real_escape_string($deptFilter);
+    $countSql .= " WHERE m.prod = '$safeDept'";
+}
 $totalResult = $connMB->query($countSql)->fetch_assoc();
-$totalData = $totalResult['total'] ?? 0;
-$totalPages = ceil($totalData / $limit);
+$totalData   = $totalResult['total'] ?? 0;
+$totalPages  = ceil($totalData / $limit);
 
-// === Query utama ===
+// === Query utama (kalau nanti kamu butuh; untuk sekarang tabel tetap via AJAX) ===
 $sql = "
     SELECT 
-        cm.id,
-        cm.machine_name,
-        d.dept_name AS department,
-        s.name AS section,
+        m.id,
+        m.machine      AS machine_name,
+        m.prod         AS department,
+        m.subline      AS section,
         (
-            SELECT COUNT(*) FROM book_file bf 
-            WHERE bf.machine_id = cm.id
+            SELECT COUNT(*) 
+            FROM book_file bf 
+            WHERE bf.machine_id = m.id
         ) AS has_manual
-    FROM contoh_mesin cm
-    LEFT JOIN department d ON cm.dept_id = d.id
-    LEFT JOIN section s ON cm.section_id = s.id
+    FROM machine m
 ";
-if ($deptFilter) $sql .= " WHERE cm.dept_id = " . intval($deptFilter);
-$sql .= " ORDER BY d.dept_name, s.name, cm.machine_name
-           LIMIT $limit OFFSET $offset";
+if ($deptFilter !== '') {
+    $safeDept = $connMB->real_escape_string($deptFilter);
+    $sql .= " WHERE m.prod = '$safeDept'";
+}
+$sql .= "
+    ORDER BY m.prod, m.subline, m.machine
+    LIMIT $limit OFFSET $offset
+";
 $result = $connMB->query($sql);
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -249,11 +259,12 @@ $result = $connMB->query($sql);
         <input type="hidden" name="page" value="list_machine">
         <select name="dept">
           <option value="">-- Semua Departemen --</option>
-          <?php while ($dept = $deptQuery->fetch_assoc()): ?>
-            <option value="<?= $dept['id'] ?>" <?= $deptFilter == $dept['id'] ? 'selected' : '' ?>>
-              <?= htmlspecialchars($dept['dept_name']) ?>
-            </option>
-          <?php endwhile; ?>
+            <?php while ($dept = $deptQuery->fetch_assoc()): ?>
+              <option value="<?= htmlspecialchars($dept['prod']) ?>" 
+                      <?= $deptFilter == $dept['prod'] ? 'selected' : '' ?>>
+                <?= htmlspecialchars($dept['prod']) ?>
+              </option>
+            <?php endwhile; ?>
         </select>
         <div class="modal-actions">
           <button type="button" class="btn-cancel" onclick="closeModal()">Batal</button>

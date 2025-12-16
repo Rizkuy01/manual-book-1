@@ -6,30 +6,27 @@ if (!$id) die('Invalid ID');
 
 $stmt = $connMB->prepare("
     SELECT 
-        cm.id,
-        cm.machine_name,
-        cm.code_machine,
-        cm.fixedasset,
-        cm.maker,
-        cm.user,
-        cm.created_at,
-        cm.dept_id,
-        cm.section_id,
-        cm.subsection_id,
-        d.dept_name AS department,
-        s.name AS section,
-        ss.name AS subsection,
+        m.id,
+        m.machine AS machine_name,
+        m.linecode AS code_machine,
+        m.fixedasset,
+        m.maker,
+        m.mcno AS user,
+        m.category,
+        m.prod,
+        m.subline,
+        m.linename,
+        m.lineno,
+        m.fixedassetnew,
         b.nama_file,
         b.file_path,
         b.uploaded_at
-    FROM contoh_mesin cm
-    LEFT JOIN department d ON cm.dept_id = d.id
-    LEFT JOIN section s ON cm.section_id = s.id
-    LEFT JOIN subsection ss ON cm.subsection_id = ss.id
-    LEFT JOIN book_file b ON b.machine_id = cm.id
-    WHERE cm.id = ?
+    FROM machine m
+    LEFT JOIN book_file b ON b.machine_id = m.id
+    WHERE m.id = ?
     LIMIT 1
 ");
+
 
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -124,15 +121,17 @@ $success = $_GET['success'] ?? null;
     <div class="card info">
       <h2>Machine Information</h2>
       <table class="info-table">
-        <tr><td>Machine Name</td><td>: <?= htmlspecialchars($data['machine_name'] ?? '-') ?></td></tr>
-        <tr><td>Code Machine</td><td>: <?= htmlspecialchars($data['code_machine'] ?? '-') ?></td></tr>
-        <tr><td>Fixed Asset</td><td>: <?= htmlspecialchars($data['fixedasset'] ?? '-') ?></td></tr>
-        <tr><td>Maker</td><td>: <?= htmlspecialchars($data['maker'] ?? '-') ?></td></tr>
-        <tr><td>User</td><td>: <?= htmlspecialchars($data['user'] ?? '-') ?></td></tr>
-        <tr><td>Department</td><td>: <?= htmlspecialchars($data['department'] ?? '-') ?></td></tr>
-        <tr><td>Section</td><td>: <?= htmlspecialchars($data['section'] ?? '-') ?></td></tr>
-        <tr><td>Subsection</td><td>: <?= htmlspecialchars($data['subsection'] ?? '-') ?></td></tr>
-        <tr><td>Created At</td><td>: <?= !empty($data['created_at']) ? date('d M Y H:i', strtotime($data['created_at'])) : '-' ?></td></tr>
+          <tr><td>Machine Name</td><td>: <?= htmlspecialchars($data['machine_name'] ?? '') ?></td></tr>
+          <tr><td>Line Code</td><td>: <?= htmlspecialchars($data['code_machine'] ?? '') ?></td></tr>
+          <tr><td>Fixed Asset</td><td>: <?= htmlspecialchars($data['fixedasset'] ?? '') ?></td></tr>
+          <tr><td>Fixed Asset New</td><td>: <?= htmlspecialchars($data['fixedassetnew'] ?? '') ?></td></tr>
+          <tr><td>Maker</td><td>: <?= htmlspecialchars($data['maker'] ?? '') ?></td></tr>
+          <tr><td>MC No</td><td>: <?= htmlspecialchars($data['user'] ?? '') ?></td></tr>
+          <tr><td>Category</td><td>: <?= htmlspecialchars($data['category'] ?? '') ?></td></tr>
+          <tr><td>Prod</td><td>: <?= htmlspecialchars($data['prod'] ?? '') ?></td></tr>
+          <tr><td>Subline</td><td>: <?= htmlspecialchars($data['subline'] ?? '') ?></td></tr>
+          <tr><td>Line Name</td><td>: <?= htmlspecialchars($data['linename'] ?? '') ?></td></tr>
+          <tr><td>Line No</td><td>: <?= htmlspecialchars($data['lineno'] ?? '') ?></td></tr>
       </table>
 
       <div class="btn-group">
@@ -171,31 +170,51 @@ $absolutePath = 'C:/laragon/www/' . str_replace('/', '\\', $filePath);
       <form method="POST" action="actions/update_machine.php">
         <input type="hidden" name="id" value="<?= $data['id'] ?>">
         <div class="form-row">
-          <div><label>Departemen</label>
-            <input type="text" readonly value="<?= htmlspecialchars($data['department'] ?? '-') ?>">
+          <div>
+              <label>Machine Name</label>
+              <input type="text" name="machine_name" value="<?= htmlspecialchars($data['machine_name']) ?>">
           </div>
-          <div><label>Code Machine</label>
-            <input type="text" name="code_machine" value="<?= htmlspecialchars($data['code_machine'] ?? '') ?>">
+          <div>
+              <label>Line Code</label>
+              <input type="text" name="code_machine" value="<?= htmlspecialchars($data['code_machine']) ?>">
           </div>
-          <div><label>Section</label>
-            <input type="text" readonly value="<?= htmlspecialchars($data['section'] ?? '-') ?>">
+          <div>
+              <label>Category</label>
+              <input type="text" name="category" value="<?= htmlspecialchars($data['category'] ?? '') ?>">
           </div>
-          <div><label>ID Asset</label>
-            <input type="number" name="fixedasset" value="<?= htmlspecialchars($data['fixedasset'] ?? '') ?>">
+          <div>
+              <label>Prod</label>
+              <input type="text" name="prod" value="<?= htmlspecialchars($data['prod']) ?>">
           </div>
-          <div><label>Subsection</label>
-            <input type="text" readonly value="<?= htmlspecialchars($data['subsection'] ?? '-') ?>">
+          <div>
+              <label>Subline</label>
+              <input type="text" name="subline" value="<?= htmlspecialchars($data['subline']) ?>">
           </div>
-          <div><label>Maker</label>
-            <input type="text" name="maker" value="<?= htmlspecialchars($data['maker'] ?? '') ?>">
+          <div>
+              <label>Line Name</label>
+              <input type="text" name="linename" value="<?= htmlspecialchars($data['linename']) ?>">
           </div>
-          <div><label>Nama Mesin</label>
-            <input type="text" name="machine_name" value="<?= htmlspecialchars($data['machine_name'] ?? '') ?>">
+          <div>
+              <label>Line No</label>
+              <input type="number" name="lineno" value="<?= htmlspecialchars($data['lineno']) ?>">
           </div>
-          <div><label>User</label>
-            <input type="text" name="user" value="<?= htmlspecialchars($data['user'] ?? '') ?>">
+          <div>
+              <label>Maker</label>
+              <input type="text" name="maker" value="<?= htmlspecialchars($data['maker']) ?>">
           </div>
-        </div>
+          <div>
+              <label>MC No</label>
+              <input type="text" name="user" value="<?= htmlspecialchars($data['user']) ?>">
+          </div>
+          <div>
+              <label>Fixed Asset</label>
+              <input type="text" name="fixedasset" value="<?= htmlspecialchars($data['fixedasset']) ?>">
+          </div>
+          <div>
+              <label>Fixed Asset (New)</label>
+              <input type="text" name="fixedassetnew" value="<?= htmlspecialchars($data['fixedassetnew']) ?>">
+          </div>
+      </div>
 
         <div class="form-actions">
           <button type="button" onclick="closeEditModal()" class="btn-cancel">Batal</button>
@@ -213,9 +232,9 @@ $absolutePath = 'C:/laragon/www/' . str_replace('/', '\\', $filePath);
 
       <form method="POST" action="actions/update_file.php" enctype="multipart/form-data">
         <input type="hidden" name="machine_id" value="<?= $data['id'] ?>">
-        <input type="hidden" name="dept_id" value="<?= htmlspecialchars($data['dept_id']) ?>">
-        <input type="hidden" name="section_id" value="<?= htmlspecialchars($data['section_id']) ?>">
-        <input type="hidden" name="subsection_id" value="<?= htmlspecialchars($data['subsection_id']) ?>">
+        <input type="hidden" name="dept_id" value="<?= htmlspecialchars($data['dept_id'] ?? '') ?>">
+        <input type="hidden" name="section_id" value="<?= htmlspecialchars($data['section_id'] ?? '') ?>">
+        <input type="hidden" name="subsection_id" value="<?= htmlspecialchars($data['subsection_id'] ?? '') ?>">
 
         <div class="form-row">
           <div>

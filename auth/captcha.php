@@ -1,9 +1,13 @@
 <?php
 session_start();
 
-// === Generate Captcha Code ===
-$captcha_code = substr(str_shuffle("ABCDEFGHJKLMNPQRSTUVWXYZ23456789"), 0, 5);
-$_SESSION['captcha'] = $captcha_code;
+// === Generate Captcha Code hanya jika belum ada ===
+if (!isset($_SESSION['captcha']) || empty($_SESSION['captcha'])) {
+    $captcha_code = substr(str_shuffle("ABCDEFGHJKLMNPQRSTUVWXYZ23456789"), 0, 5);
+    $_SESSION['captcha'] = $captcha_code;
+} else {
+    $captcha_code = $_SESSION['captcha'];
+}
 
 // === Ukuran Gambar ===
 $width = 120;

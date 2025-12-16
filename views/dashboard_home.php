@@ -145,7 +145,7 @@ $uploads = $connMB->query("
   <!-- Header Sambutan -->
   <div class="bg-white rounded-xl shadow p-6 mb-6">
     <h2 class="text-2xl font-bold text-slate-800 mb-2">
-      Selamat datang, <span class="text-red-700"><?= htmlspecialchars($_SESSION['pending_user']['nama']) ?></span> 👋
+      Selamat datang, <span class="text-red-700"><?= htmlspecialchars($_SESSION['pending_user']['nama'] ?? '') ?></span> 👋
     </h2>
     <p class="text-slate-500">Berikut ringkasan aktivitas Manual Book System Anda.</p>
     <div id="clock" class="text-sm text-slate-400 mt-1"></div>
@@ -229,7 +229,7 @@ $uploads = $connMB->query("
           <?php if ($uploads->num_rows > 0): ?>
             <?php while ($row = $uploads->fetch_assoc()): ?>
               <?php
-                $dept = $row['dept_name'];
+                $dept = $row['dept_name'] ?? 'Unknown';
                 $badgeClass = match ($dept) {
                     'Production 1' => 'badge-prod1',
                     'Production 2' => 'badge-prod2',
@@ -240,7 +240,7 @@ $uploads = $connMB->query("
                 };
               ?>
               <tr class="border-b hover:bg-slate-50 transition">
-                <td class="py-2"><?= htmlspecialchars($row['nama_file']) ?></td>
+                <td class="py-2"><?= htmlspecialchars($row['nama_file'] ?? '') ?></td>
                 <td class="text-center"><span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($dept) ?></span></td>
                 <td class="text-center"><?= date('d M Y H:i', strtotime($row['uploaded_at'])) ?></td>
               </tr>

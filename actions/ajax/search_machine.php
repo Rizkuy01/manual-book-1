@@ -5,22 +5,30 @@ $dept = $_GET['dept'] ?? '';
 $search = trim($_GET['search'] ?? '');
 
 $where = [];
-if ($dept) $where[] = "cm.dept_id = " . intval($dept);
-if ($search) $where[] = "cm.machine_name LIKE '%" . $connMB->real_escape_string($search) . "%'";
+
+if ($dept) {
+    $where[] = "m.prod = '" . $connMB->real_escape_string($dept) . "'";
+}
+
+if ($search) {
+    $where[] = "m.machine LIKE '%" . $connMB->real_escape_string($search) . "%'";
+}
 
 $sql = "
     SELECT 
-        cm.id,
-        cm.machine_name,
-        d.dept_name AS department,
-        s.name AS section,
-        (SELECT COUNT(*) FROM book_file bf WHERE bf.machine_id = cm.id) AS has_manual
-    FROM contoh_mesin cm
-    LEFT JOIN department d ON cm.dept_id = d.id
-    LEFT JOIN section s ON cm.section_id = s.id
+        m.id,
+        m.machine AS machine_name,
+        m.subline AS section,
+        m.prod AS department,
+        (SELECT COUNT(*) FROM book_file bf WHERE bf.machine_id = m.id) AS has_manual
+    FROM machine m
 ";
-if ($where) $sql .= " WHERE " . implode(' AND ', $where);
-$sql .= " ORDER BY d.dept_name, s.name, cm.machine_name LIMIT 50";
+
+if ($where) {
+    $sql .= " WHERE " . implode(" AND ", $where);
+}
+
+$sql .= " ORDER BY m.prod, m.subline, m.machine LIMIT 50";
 
 $result = $connMB->query($sql);
 ?>
@@ -39,26 +47,26 @@ $result = $connMB->query($sql);
   <tbody>
     <?php 
     if ($result->num_rows > 0):
-      $no = 1;
-      while ($row = $result->fetch_assoc()):
-        $icon = $row['has_manual'] > 0 
-          ? '<i class="fa-solid fa-check text-green-600"></i>' 
-          : '<i class="fa-solid fa-xmark text-red-600"></i>';
+        $no = 1;
+        while ($row = $result->fetch_assoc()):
+            $icon = $row['has_manual'] > 0 
+              ? '<i class="fa-solid fa-check text-green-700"></i>' 
+              : '<i class="fa-solid fa-xmark text-red-600"></i>';
     ?>
-    <tr>
-      <td><?= $no++ ?></td>
-      <td class="machine-name font-semibold"><?= htmlspecialchars($row['machine_name']) ?></td>
-      <td><?= htmlspecialchars($row['section']) ?></td>
-      <td><?= htmlspecialchars($row['department']) ?></td>
-      <td class="action-icon"><?= $icon ?></td>
-      <td>
-        <a href="index.php?page=detail_machine&id=<?= $row['id'] ?>" class="action-btn">
-          <i class="fa-solid fa-eye"></i>
-        </a>
-      </td>
-    </tr>
+      <tr>
+        <td><?= $no++ ?></td>
+        <td class="machine-name font-semibold"><?= htmlspecialchars($row['machine_name']) ?></td>
+        <td><?= htmlspecialchars($row['section']) ?></td>
+        <td><?= htmlspecialchars($row['department']) ?></td>
+        <td><?= $icon ?></td>
+        <td>
+          <a href="index.php?page=detail_machine&id=<?= $row['id'] ?>" class="action-btn">
+            <i class="fa-solid fa-eye"></i>
+          </a>
+        </td>
+      </tr>
     <?php endwhile; else: ?>
-      <tr><td colspan="6" class="text-center py-4 text-slate-500 italic">Tidak ada data ditemukan.</td></tr>
+      <tr><td colspan="6" class="text-center text-slate-500 py-4">Tidak ada data ditemukan.</td></tr>
     <?php endif; ?>
   </tbody>
 </table>
